@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 # William Holloway william.holloway@nyumc.org
-#
 # Copyright (C) 2008-2009 NYU Langone Medical Center
+#
+# Brian Dunnette dunn0172@umn.edu
+# Copyright (C) 2013 Regents of the University of Minnesota
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
