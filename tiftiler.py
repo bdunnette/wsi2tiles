@@ -64,11 +64,12 @@ def known_codec(tif_file):
 def uncompress_tif(tif_file, out_dir):
     import openslide
     tmp_file = os.path.join(out_dir, 'os_tmp.tif')
-    os_image = openslide.Openslide(tif_file)
-    dims = os_image.getSize(0)
+    os_image = openslide.OpenSlide(tif_file)
+    dims = os_image.dimensions
     x_pixels = dims[0]
     y_pixels = dims[1]
-    os_tmp = os_image.getImageRGB(0, 0, 0, x_pixels, y_pixels)
+    print "Exporting %s x %s pixels" % (x_pixels, y_pixels)
+    os_tmp = os_image.read_region((0, 0), 0, (x_pixels, y_pixels))
     os_tmp.save(tmp_file)
     os.rename(tmp_file, tif_file)
 

@@ -44,6 +44,7 @@ def process_svs(file, out_dir, base_dir):
     os.system('rm x*.tif')
 
     tmp_file = os.path.join(out_dir, 'tmp.tif')
+    print "Decompressing to %s" % tmp_file
     tile(tmp_file, out_dir, True, True)
 
 
