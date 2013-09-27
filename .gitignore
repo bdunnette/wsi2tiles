@@ -1,3 +1,5 @@
+aperio_output/
+*.mbtiles
 *.py[cod]
 
 # C extensions

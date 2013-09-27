@@ -26,7 +26,8 @@ import re
 import os
 import subprocess
 import math
-
+import sqlite3
+import mbutil
 
 def clean_up_name(arg):
     arg = re.sub('\W', '_', arg)
@@ -143,11 +144,15 @@ def tile(tif_file, out_dir, remove_blank_tiles=0, verbose=0):
     sts = os.waitpid(resize.pid, 0)
     os.rename(tmp_file, vips_file)
 
+    mbtiles = mbutil.mbtiles_connect("%s.mbtiles" % tif_file)
+    cur = mbtiles.cursor()
+    mbutil.mbtiles_setup(cur)
+    mbtiles.commit()
+
     if source_x_tiles % 2 != 0:
         source_x_tiles = source_x_tiles + 1
     if source_y_tiles % 2 != 0:
         source_y_tiles = source_y_tiles + 1
-
     x_offset = (max_x_edge_tile - source_x_tiles) / 2
     y_offset = (max_x_edge_tile - source_y_tiles) / 2
     y_delta = delta / 2
@@ -195,6 +200,12 @@ def tile(tif_file, out_dir, remove_blank_tiles=0, verbose=0):
                 cmd = 'vips im_extract_area %s %s %s %s 256 256 2>/dev/null' % (vips_file, tile_file, left, top)
                 extract = subprocess.Popen(cmd, shell=True)
                 sts = os.waitpid(extract.pid, 0)
+		f = open(tile_file, 'rb')
+		cur.execute("""insert into tiles (zoom_level,
+tile_column, tile_row, tile_data) values
+(?, ?, ?, ?);""", (zoom, x, y, sqlite3.Binary(f.read())))
+                f.close()
+		mbtiles.commit()
                 if remove_blank_tiles and is_blank_tile(tile_file):
                     if bool(verbose):
                         print 'Removing tile %s ' % tile_file
@@ -211,5 +222,6 @@ def tile(tif_file, out_dir, remove_blank_tiles=0, verbose=0):
         if y_delta == 1:
             y_delta = 0
     os.unlink(vips_file)
+    mbtiles.close()
     if bool(verbose):
         print 'done'
